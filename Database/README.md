@@ -126,7 +126,6 @@ SELECT @id;
 
 Caso não queira visualizar o retorno basta usar a procedure da seguinte forma:
 
-CALL SP_insert_disco2('Forro do BOM', '1993','3','3','3');
 
 ```sql
 CALL SP_insert_disco ('Forro do BOM', '1993','3','3','3');
