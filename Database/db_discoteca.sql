@@ -178,36 +178,67 @@ DELIMITER ;
 
 -- ------------------------------------------Criando Procedures -----------------------------
 
+USE db_discoteca;
+
+DROP PROCEDURE SP_insert_gravadora;
+
 DELIMITER \\
 CREATE PROCEDURE SP_insert_gravadora (g_nome VARCHAR(20))
 BEGIN
-	INSERT INTO gravadora (nome) VALUES (FN_maiuscula(g_nome));
+    IF NOT EXISTS (SELECT nome FROM gravadora WHERE nome = FN_maiuscula(g_nome)) THEN
+		INSERT INTO gravadora (nome) VALUES (FN_maiuscula(g_nome));
+	END IF ;
+    
+	IF ROW_COUNT() = 0 THEN
+		SELECT 'ERRO! Esta gravadora já consta na base de dados';
+
+    ELSE
+		SELECT 'Gravadora cadastrada com sucesso!';
+	END IF;
 END \\
 DELIMITER ;
 
 
-
+DROP PROCEDURE SP_insert_genero;
 DELIMITER \\
 CREATE PROCEDURE SP_insert_genero (ge_nome VARCHAR(20))
 BEGIN
-	INSERT INTO genero (nome) VALUES (FN_maiuscula(ge_nome));
+    IF NOT EXISTS (SELECT nome FROM genero WHERE nome = FN_maiuscula(ge_nome)) THEN
+		INSERT INTO genero (nome) VALUES (FN_maiuscula(ge_nome));
+	END IF ;
+    
+	IF ROW_COUNT() = 0 THEN
+		SELECT 'ERRO! Este genero já consta na base de dados';
+
+    ELSE
+		SELECT 'Genero cadastrado com sucesso!';
+	END IF;
 END \\
 DELIMITER ;
 
 
-
+DROP PROCEDURE SP_insert_artista;
 DELIMITER \\
-CREATE PROCEDURE SP_insert_artista (a_nome VARCHAR(50), nascimento DATE)
+CREATE PROCEDURE SP_insert_artista (a_nome VARCHAR(20), nascimento DATE)
 BEGIN
 	DECLARE valida_data DATE;
 	SET valida_data = (SELECT CURDATE());
     
+    IF NOT EXISTS (SELECT nome, dt_nascimento FROM artista WHERE nome = FN_maiuscula(a_nome) AND dt_nascimento = nascimento)  THEN
 		IF NOT (nascimento <= valida_data)
 			THEN
 				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Data inválida';
             ELSE 
 				INSERT INTO artista (nome, dt_nascimento) VALUES (FN_maiuscula(a_nome), nascimento);
         END IF;
+	END IF ;
+    
+	IF ROW_COUNT() = 0 THEN
+		SELECT 'ERRO! Este artista já consta na base de dados';
+
+    ELSE
+		SELECT 'Artista cadastrado com sucesso!';
+	END IF;
 END \\
 DELIMITER ;
 
