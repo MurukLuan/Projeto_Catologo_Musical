@@ -185,16 +185,12 @@ DROP PROCEDURE SP_insert_gravadora;
 DELIMITER \\
 CREATE PROCEDURE SP_insert_gravadora (g_nome VARCHAR(20))
 BEGIN
-    IF NOT EXISTS (SELECT nome FROM gravadora WHERE nome = FN_maiuscula(g_nome)) THEN
+	IF NOT EXISTS (SELECT nome FROM gravadora WHERE nome = FN_maiuscula(g_nome)) THEN
 		INSERT INTO gravadora (nome) VALUES (FN_maiuscula(g_nome));
+        
+		ELSE
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ERRO! essa gravadora já existe na base de dados!';
 	END IF ;
-    
-	IF ROW_COUNT() = 0 THEN
-		SELECT 'ERRO! Esta gravadora já consta na base de dados';
-
-    ELSE
-		SELECT 'Gravadora cadastrada com sucesso!';
-	END IF;
 END \\
 DELIMITER ;
 
@@ -205,14 +201,10 @@ CREATE PROCEDURE SP_insert_genero (ge_nome VARCHAR(20))
 BEGIN
     IF NOT EXISTS (SELECT nome FROM genero WHERE nome = FN_maiuscula(ge_nome)) THEN
 		INSERT INTO genero (nome) VALUES (FN_maiuscula(ge_nome));
+		
+        ELSE
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ERRO! esse genero já existe na base de dados!';
 	END IF ;
-    
-	IF ROW_COUNT() = 0 THEN
-		SELECT 'ERRO! Este genero já consta na base de dados';
-
-    ELSE
-		SELECT 'Genero cadastrado com sucesso!';
-	END IF;
 END \\
 DELIMITER ;
 
@@ -231,14 +223,9 @@ BEGIN
             ELSE 
 				INSERT INTO artista (nome, dt_nascimento) VALUES (FN_maiuscula(a_nome), nascimento);
         END IF;
+   	ELSE
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ERRO! esse artista já existe na base de dados!';
 	END IF ;
-    
-	IF ROW_COUNT() = 0 THEN
-		SELECT 'ERRO! Este artista já consta na base de dados';
-
-    ELSE
-		SELECT 'Artista cadastrado com sucesso!';
-	END IF;
 END \\
 DELIMITER ;
 
@@ -274,13 +261,13 @@ BEGIN
 				END IF;
                 
 		INSERT INTO disco (titulo_disco, ano_lancamento, id_artista, id_gravadora,id_genero) VALUES (FN_maiuscula(d_titulo), ano, cod_artista, cod_gravadora, cod_genero);
-
+		 SET cod_disco = (SELECT MAX(id_disco) FROM disco); 
 	ELSE 
 
 		INSERT INTO disco (titulo_disco, ano_lancamento, id_artista, id_gravadora,id_genero) VALUES (FN_maiuscula(d_titulo), ano, cod_artista, cod_gravadora, cod_genero);
-
+		 SET cod_disco = (SELECT MAX(id_disco) FROM disco); 
 	END IF;
- SET cod_disco = (SELECT MAX(id_disco) FROM disco);   
+  
 END \\
 DELIMITER ;
 
